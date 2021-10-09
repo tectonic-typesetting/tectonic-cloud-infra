@@ -59,6 +59,7 @@ resource "azurerm_app_service_custom_hostname_binding" "relay" {
   app_service_name    = azurerm_app_service.relay.name
   resource_group_name = azurerm_resource_group.relay.name
   depends_on          = [azurerm_dns_txt_record.relay]
+  # Have to manually set up the SSL cert in the Portal after creating the resources.
 
   lifecycle {
     ignore_changes = [ssl_state, thumbprint]
@@ -96,8 +97,13 @@ resource "azurerm_app_service_custom_hostname_binding" "assets_root" {
   app_service_name    = azurerm_app_service.relay.name
   resource_group_name = azurerm_resource_group.relay.name
   depends_on          = [azurerm_dns_txt_record.assets_root]
+  # Have to manually set up the SSL cert in the Portal after creating the resources.
 
   lifecycle {
     ignore_changes = [ssl_state, thumbprint]
   }
+}
+
+resource "azurerm_app_service_managed_certificate" "assets_root" {
+  custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.assets_root.id
 }
