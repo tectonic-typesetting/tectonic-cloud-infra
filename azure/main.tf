@@ -11,9 +11,15 @@ provider "azurerm" {
   features {}
 }
 
-# Store state in WWT's Azure blob storage:
-
 terraform {
+  required_providers {
+    azurerm = {
+      version = "~> 2.80.0"
+    }
+  }
+
+  # Store state in our Azure blob storage:
+
   backend "azurerm" {
     resource_group_name  = "tectonic"
     storage_account_name = "ttassets"
