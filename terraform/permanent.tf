@@ -13,7 +13,8 @@ resource "azurerm_resource_group" "permanent" {
   }
 }
 
-// Core, permanent storage account
+# Core, permanent storage account
+
 resource "azurerm_storage_account" "permanent_data" {
   name                = var.permanentDataName
   resource_group_name = azurerm_resource_group.permanent.name

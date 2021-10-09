@@ -12,3 +12,7 @@ variable "location" {
 variable "permanentDataName" {
   description = "The name of the permanent data storage account"
 }
+
+variable "assetsDomain" {
+  description = "The top-level domain name of the assets website"
+}
