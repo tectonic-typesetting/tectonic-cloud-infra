@@ -78,7 +78,7 @@ resource "azurerm_dns_a_record" "assets_root" {
   zone_name           = azurerm_dns_zone.assets.name
   resource_group_name = azurerm_dns_zone.assets.resource_group_name
   ttl                 = 300
-  records             = azurerm_app_service.relay.outbound_ip_address_list
+  records             = [azurerm_app_service.relay.outbound_ip_address_list[length(azurerm_app_service.relay.outbound_ip_address_list) - 1]]
 }
 
 resource "azurerm_dns_txt_record" "assets_root" {
