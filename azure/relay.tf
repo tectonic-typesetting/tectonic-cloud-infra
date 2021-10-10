@@ -1,4 +1,4 @@
-# Copyright 2021 Peter Williams and collaborators
+# Copyright 2021 the Tectonic Project
 # Licensed under the MIT License
 
 # The "relay" URL redirection service. Relay URLs are embedded in distributed
@@ -70,7 +70,7 @@ resource "azurerm_app_service_managed_certificate" "relay" {
   custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.relay.id
 }
 
-# Relay also handles the toplevel assetsDomain traffic, so that we an associate
+# Relay also handles the toplevel assetsDomain traffic, so that we can associate
 # an A record with it.
 
 resource "azurerm_dns_a_record" "assets_root" {

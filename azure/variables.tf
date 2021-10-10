@@ -1,4 +1,4 @@
-# Copyright 2021 Peter Williams and collaborators
+# Copyright 2021 the Tectonic Project
 # Licensed under the MIT License
 
 variable "env" {
@@ -6,7 +6,7 @@ variable "env" {
 }
 
 variable "location" {
-  description = "The location where resources will be created"
+  description = "The Azure location (region) where resources will be created"
 }
 
 variable "permanentDataName" {

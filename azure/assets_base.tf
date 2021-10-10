@@ -1,4 +1,4 @@
-# Copyright 2021 Peter Williams and collaborators
+# Copyright 2021 the Tectonic Project
 # Licensed under the MIT License
 
 # The base resources of the "assets" domain. This isn't in the "permanent" tier

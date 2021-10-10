@@ -1,4 +1,4 @@
-# Copyright 2021 Peter Williams and collaborators
+# Copyright 2021 the Tectonic Project
 # Licensed under the MIT License
 
 # Tectonic Azure resources. Terraform docs:
