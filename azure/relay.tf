@@ -30,8 +30,9 @@ resource "azurerm_linux_web_app" "relay" {
   }
 
   site_config {
-    always_on        = true
-    app_command_line = ""
+    always_on         = true
+    app_command_line  = ""
+    use_32_bit_worker = false
   }
 }
 
@@ -68,6 +69,11 @@ resource "azurerm_app_service_custom_hostname_binding" "relay" {
 
 resource "azurerm_app_service_managed_certificate" "relay" {
   custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.relay.id
+
+  # https://github.com/hashicorp/terraform-provider-azurerm/issues/17883 :
+  lifecycle {
+    ignore_changes = [custom_hostname_binding_id]
+  }
 }
 
 # Relay also handles the toplevel assetsDomain traffic, so that we can associate
@@ -106,4 +112,9 @@ resource "azurerm_app_service_custom_hostname_binding" "assets_root" {
 
 resource "azurerm_app_service_managed_certificate" "assets_root" {
   custom_hostname_binding_id = azurerm_app_service_custom_hostname_binding.assets_root.id
+
+  # https://github.com/hashicorp/terraform-provider-azurerm/issues/17883 :
+  lifecycle {
+    ignore_changes = [custom_hostname_binding_id]
+  }
 }

@@ -53,13 +53,16 @@ resource "azurerm_dns_cname_record" "pdata_assets" {
 }
 
 resource "azurerm_cdn_endpoint_custom_domain" "pdata_assets" {
-  # Note: if creating everything from scratch, may need to re-attempt creation
-  # of this resource because Azure needs the CNAME to already exist. (But I
-  # think there is a way to express the dependency that I'm not using here?)
-
   name            = "pdata"
   cdn_endpoint_id = azurerm_cdn_endpoint.pdata_assets.id
   host_name       = "${azurerm_dns_cname_record.pdata_assets.name}.${azurerm_dns_zone.assets.name}"
+  depends_on      = [azurerm_dns_cname_record.pdata_assets]
+
+  cdn_managed_https {
+    certificate_type = "Shared"
+    protocol_type    = "IPBased"
+    tls_version      = "None"
+  }
 }
 
 # App Service Plan for various ... app services.
