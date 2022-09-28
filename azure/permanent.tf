@@ -22,7 +22,6 @@ resource "azurerm_storage_account" "permanent_data" {
 
   account_tier              = "Standard"
   account_replication_type  = "RAGRS"
-  allow_blob_public_access  = true
   enable_https_traffic_only = false
   min_tls_version           = "TLS1_2"
 

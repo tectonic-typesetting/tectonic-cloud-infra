@@ -1,4 +1,4 @@
-# Copyright 2021 the Tectonic Project
+# Copyright 2021-2022 the Tectonic Project
 # Licensed under the MIT License
 
 # Tectonic Azure resources. Terraform docs:
@@ -6,6 +6,13 @@
 # https://registry.terraform.io/providers/hashicorp/azurerm/latest/docs
 #
 # Most of the action is in other files.
+#
+# To update the provider:
+#
+# - Remove `.terraform.lock.hcl`
+# - Update minimum version here
+# - Run `terraform init`
+# - Run `terraform (plan|apply) -var-file=prod.tfvars -refresh-only`
 
 provider "azurerm" {
   features {}
@@ -14,7 +21,7 @@ provider "azurerm" {
 terraform {
   required_providers {
     azurerm = {
-      version = "~> 2.80.0"
+      version = ">= 3.24.0"
     }
   }
 

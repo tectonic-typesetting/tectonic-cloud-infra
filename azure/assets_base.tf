@@ -37,10 +37,8 @@ resource "azurerm_cdn_endpoint" "pdata_assets" {
   resource_group_name = azurerm_resource_group.assets_base.name
 
   origin {
-    name       = "pdata1"
-    http_port  = 0 # not sure why I need to write these, but if I don't
-    https_port = 0 # Terraform thinks it needs to recreate the origin
-    host_name  = azurerm_storage_account.permanent_data.primary_web_host
+    name      = "pdata1"
+    host_name = azurerm_storage_account.permanent_data.primary_web_host
   }
 
   origin_host_header = azurerm_storage_account.permanent_data.primary_web_host
