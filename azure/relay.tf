@@ -21,7 +21,7 @@ resource "azurerm_app_service" "relay" {
   name                = "${var.env}-relay"
   location            = azurerm_resource_group.relay.location
   resource_group_name = azurerm_resource_group.relay.name
-  app_service_plan_id = azurerm_app_service_plan.assets.id
+  app_service_plan_id = azurerm_service_plan.assets.id
 
   app_settings = {
     "DOCKER_ENABLE_CI"           = "true"

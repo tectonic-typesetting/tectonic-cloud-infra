@@ -54,26 +54,20 @@ resource "azurerm_dns_cname_record" "pdata_assets" {
 
 resource "azurerm_cdn_endpoint_custom_domain" "pdata_assets" {
   # Note: if creating everything from scratch, may need to re-attempt creation
-  # of this resource because Azure needs the CNAME to already exist.
+  # of this resource because Azure needs the CNAME to already exist. (But I
+  # think there is a way to express the dependency that I'm not using here?)
+
   name            = "pdata"
   cdn_endpoint_id = azurerm_cdn_endpoint.pdata_assets.id
   host_name       = "${azurerm_dns_cname_record.pdata_assets.name}.${azurerm_dns_zone.assets.name}"
-
-  # Not able to set up HTTPS support in Terraform -- have to set it up manually
-  # in the Azure portal.
 }
 
 # App Service Plan for various ... app services.
 
-resource "azurerm_app_service_plan" "assets" {
+resource "azurerm_service_plan" "assets" {
   name                = "${var.env}-assets"
   location            = azurerm_resource_group.assets_base.location
   resource_group_name = azurerm_resource_group.assets_base.name
-  kind                = "Linux"
-  reserved            = true
-
-  sku {
-    tier = "Basic"
-    size = "B1"
-  }
+  os_type             = "Linux"
+  sku_name            = "B1"
 }
