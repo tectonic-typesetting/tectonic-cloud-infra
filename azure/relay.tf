@@ -63,8 +63,10 @@ resource "azurerm_app_service_custom_hostname_binding" "relay" {
   hostname            = "${local.relaySubdomain}.${var.assetsDomain}"
   app_service_name    = azurerm_linux_web_app.relay.name
   resource_group_name = azurerm_resource_group.relay.name
-  depends_on          = [azurerm_dns_txt_record.relay]
-  # Have to manually set up the SSL cert in the Portal after creating the resources.
+  depends_on = [
+    azurerm_dns_cname_record.relay,
+    azurerm_dns_txt_record.relay
+  ]
 
   lifecycle {
     ignore_changes = [ssl_state, thumbprint]
@@ -78,6 +80,12 @@ resource "azurerm_app_service_managed_certificate" "relay" {
   lifecycle {
     ignore_changes = [custom_hostname_binding_id]
   }
+}
+
+resource "azurerm_app_service_certificate_binding" "relay" {
+  hostname_binding_id = azurerm_app_service_custom_hostname_binding.relay.id
+  certificate_id      = azurerm_app_service_managed_certificate.relay.id
+  ssl_state           = "SniEnabled"
 }
 
 # Relay also handles the toplevel assetsDomain traffic, so that we can associate
@@ -107,7 +115,6 @@ resource "azurerm_app_service_custom_hostname_binding" "assets_root" {
   app_service_name    = azurerm_linux_web_app.relay.name
   resource_group_name = azurerm_resource_group.relay.name
   depends_on          = [azurerm_dns_txt_record.assets_root]
-  # Have to manually set up the SSL cert in the Portal after creating the resources.
 
   lifecycle {
     ignore_changes = [ssl_state, thumbprint]
@@ -121,4 +128,10 @@ resource "azurerm_app_service_managed_certificate" "assets_root" {
   lifecycle {
     ignore_changes = [custom_hostname_binding_id]
   }
+}
+
+resource "azurerm_app_service_certificate_binding" "assets_root" {
+  hostname_binding_id = azurerm_app_service_custom_hostname_binding.assets_root.id
+  certificate_id      = azurerm_app_service_managed_certificate.assets_root.id
+  ssl_state           = "SniEnabled"
 }
