@@ -1,4 +1,4 @@
-# Copyright 2021 the Tectonic Project
+# Copyright 2021-2022 the Tectonic Project
 # Licensed under the MIT License
 
 # The "relay" URL redirection service. Relay URLs are embedded in distributed
@@ -17,11 +17,12 @@ resource "azurerm_resource_group" "relay" {
 
 # App service with managed TLS termination
 
-resource "azurerm_app_service" "relay" {
+resource "azurerm_linux_web_app" "relay" {
   name                = "${var.env}-relay"
   location            = azurerm_resource_group.relay.location
   resource_group_name = azurerm_resource_group.relay.name
-  app_service_plan_id = azurerm_service_plan.assets.id
+  service_plan_id     = azurerm_service_plan.assets.id
+  # Docker image: tectonictypesetting/relay-service:latest
 
   app_settings = {
     "DOCKER_ENABLE_CI"           = "true"
@@ -31,7 +32,6 @@ resource "azurerm_app_service" "relay" {
   site_config {
     always_on        = true
     app_command_line = ""
-    linux_fx_version = "DOCKER|tectonictypesetting/relay-service:latest"
   }
 }
 
@@ -40,7 +40,7 @@ resource "azurerm_dns_cname_record" "relay" {
   zone_name           = azurerm_dns_zone.assets.name
   resource_group_name = azurerm_dns_zone.assets.resource_group_name
   ttl                 = 300
-  record              = azurerm_app_service.relay.default_site_hostname
+  record              = azurerm_linux_web_app.relay.default_hostname
 }
 
 resource "azurerm_dns_txt_record" "relay" {
@@ -50,13 +50,13 @@ resource "azurerm_dns_txt_record" "relay" {
   ttl                 = 300
 
   record {
-    value = azurerm_app_service.relay.custom_domain_verification_id
+    value = azurerm_linux_web_app.relay.custom_domain_verification_id
   }
 }
 
 resource "azurerm_app_service_custom_hostname_binding" "relay" {
   hostname            = "${local.relaySubdomain}.${var.assetsDomain}"
-  app_service_name    = azurerm_app_service.relay.name
+  app_service_name    = azurerm_linux_web_app.relay.name
   resource_group_name = azurerm_resource_group.relay.name
   depends_on          = [azurerm_dns_txt_record.relay]
   # Have to manually set up the SSL cert in the Portal after creating the resources.
@@ -78,7 +78,7 @@ resource "azurerm_dns_a_record" "assets_root" {
   zone_name           = azurerm_dns_zone.assets.name
   resource_group_name = azurerm_dns_zone.assets.resource_group_name
   ttl                 = 300
-  records             = [azurerm_app_service.relay.outbound_ip_address_list[length(azurerm_app_service.relay.outbound_ip_address_list) - 1]]
+  records             = [azurerm_linux_web_app.relay.outbound_ip_address_list[length(azurerm_linux_web_app.relay.outbound_ip_address_list) - 1]]
 }
 
 resource "azurerm_dns_txt_record" "assets_root" {
@@ -88,13 +88,13 @@ resource "azurerm_dns_txt_record" "assets_root" {
   ttl                 = 300
 
   record {
-    value = azurerm_app_service.relay.custom_domain_verification_id
+    value = azurerm_linux_web_app.relay.custom_domain_verification_id
   }
 }
 
 resource "azurerm_app_service_custom_hostname_binding" "assets_root" {
   hostname            = var.assetsDomain
-  app_service_name    = azurerm_app_service.relay.name
+  app_service_name    = azurerm_linux_web_app.relay.name
   resource_group_name = azurerm_resource_group.relay.name
   depends_on          = [azurerm_dns_txt_record.assets_root]
   # Have to manually set up the SSL cert in the Portal after creating the resources.
