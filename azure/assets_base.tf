@@ -37,10 +37,8 @@ resource "azurerm_cdn_endpoint" "pdata_assets" {
   resource_group_name = azurerm_resource_group.assets_base.name
 
   origin {
-    name       = "pdata1"
-    http_port  = 0 # not sure why I need to write these, but if I don't
-    https_port = 0 # Terraform thinks it needs to recreate the origin
-    host_name  = azurerm_storage_account.permanent_data.primary_web_host
+    name      = "pdata1"
+    host_name = azurerm_storage_account.permanent_data.primary_web_host
   }
 
   origin_host_header = azurerm_storage_account.permanent_data.primary_web_host
@@ -55,27 +53,24 @@ resource "azurerm_dns_cname_record" "pdata_assets" {
 }
 
 resource "azurerm_cdn_endpoint_custom_domain" "pdata_assets" {
-  # Note: if creating everything from scratch, may need to re-attempt creation
-  # of this resource because Azure needs the CNAME to already exist.
   name            = "pdata"
   cdn_endpoint_id = azurerm_cdn_endpoint.pdata_assets.id
   host_name       = "${azurerm_dns_cname_record.pdata_assets.name}.${azurerm_dns_zone.assets.name}"
+  depends_on      = [azurerm_dns_cname_record.pdata_assets]
 
-  # Not able to set up HTTPS support in Terraform -- have to set it up manually
-  # in the Azure portal.
+  cdn_managed_https {
+    certificate_type = "Shared"
+    protocol_type    = "IPBased"
+    tls_version      = "None"
+  }
 }
 
 # App Service Plan for various ... app services.
 
-resource "azurerm_app_service_plan" "assets" {
+resource "azurerm_service_plan" "assets" {
   name                = "${var.env}-assets"
   location            = azurerm_resource_group.assets_base.location
   resource_group_name = azurerm_resource_group.assets_base.name
-  kind                = "Linux"
-  reserved            = true
-
-  sku {
-    tier = "Basic"
-    size = "B1"
-  }
+  os_type             = "Linux"
+  sku_name            = "B1"
 }
