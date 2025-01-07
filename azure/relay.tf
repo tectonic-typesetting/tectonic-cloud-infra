@@ -24,8 +24,7 @@ resource "azurerm_linux_web_app" "relay" {
   service_plan_id     = azurerm_service_plan.assets.id
 
   app_settings = {
-    "DOCKER_ENABLE_CI"           = "true"
-    "DOCKER_REGISTRY_SERVER_URL" = "https://index.docker.io/v1"
+    "DOCKER_ENABLE_CI" = "true"
   }
 
   site_config {

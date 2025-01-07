@@ -15,13 +15,15 @@
 # - Run `terraform apply -var-file=prod.tfvars -refresh-only`
 
 provider "azurerm" {
+  subscription_id = "2f2d6506-e087-45f7-a59d-684b33a07485"
+
   features {}
 }
 
 terraform {
   required_providers {
     azurerm = {
-      version = "= 3.117.0"
+      version = ">= 4.14.0"
     }
   }
 
