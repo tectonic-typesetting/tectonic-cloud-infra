@@ -33,7 +33,8 @@ resource "azurerm_linux_web_app" "relay" {
     use_32_bit_worker = false
 
     application_stack {
-      docker_image_name = "tectonictypesetting/relay-service:latest"
+      docker_registry_url = "https://index.docker.io/v1"
+      docker_image_name   = "tectonictypesetting/relay-service:latest"
     }
   }
 }
