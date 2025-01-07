@@ -1,4 +1,4 @@
-# Copyright 2021 the Tectonic Project
+# Copyright the Tectonic Project
 # Licensed under the MIT License
 
 # The base resources of the "assets" domain. This isn't in the "permanent" tier
@@ -73,4 +73,103 @@ resource "azurerm_service_plan" "assets" {
   resource_group_name = azurerm_resource_group.assets_base.name
   os_type             = "Linux"
   sku_name            = "B1"
+}
+
+
+# Migration to FrontDoor!
+
+resource "azurerm_cdn_frontdoor_profile" "assets" {
+  name                = "${var.env}-fdassets"
+  resource_group_name = azurerm_resource_group.assets_base.name
+  sku_name            = "Standard_AzureFrontDoor"
+}
+
+resource "azurerm_cdn_frontdoor_endpoint" "assets" {
+  name                     = "${var.env}-fdassets"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.assets.id
+}
+
+resource "azurerm_cdn_frontdoor_origin_group" "assets" {
+  name                     = "${var.env}-fdassets"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.assets.id
+
+  load_balancing {}
+}
+
+resource "azurerm_cdn_frontdoor_origin" "pdata_assets" {
+  name                           = "${var.env}-fdassets"
+  cdn_frontdoor_origin_group_id  = azurerm_cdn_frontdoor_origin_group.assets.id
+  enabled                        = true
+  certificate_name_check_enabled = false
+  host_name                      = azurerm_storage_account.permanent_data.primary_web_host
+  origin_host_header             = azurerm_storage_account.permanent_data.primary_web_host
+}
+
+resource "azurerm_cdn_frontdoor_rule_set" "assets" {
+  name                     = "rules"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.assets.id
+}
+
+resource "azurerm_cdn_frontdoor_route" "assets" {
+  name                          = "${var.env}-fdassets"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.assets.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.assets.id
+  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.pdata_assets.id]
+  cdn_frontdoor_rule_set_ids    = [azurerm_cdn_frontdoor_rule_set.assets.id]
+  enabled                       = true
+
+  forwarding_protocol    = "HttpsOnly"
+  https_redirect_enabled = true
+  patterns_to_match      = ["/*"]
+  supported_protocols    = ["Http", "Https"]
+
+  cache {}
+
+  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.assets.id]
+  link_to_default_domain          = true
+}
+
+# moved {
+#   from = azurerm_cdn_frontdoor_route.example
+#   to   = azurerm_cdn_frontdoor_route.assets
+# }
+
+resource "azurerm_cdn_frontdoor_custom_domain" "assets" {
+  name                     = "assets"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.assets.id
+  dns_zone_id              = azurerm_dns_zone.assets.id
+  host_name                = "newdatas1.${azurerm_dns_zone.assets.name}"
+  #host_name       = "${azurerm_dns_cname_record.pdata_assets.name}.${azurerm_dns_zone.assets.name}"
+  #depends_on      = [azurerm_dns_cname_record.pdata_assets]
+
+  tls {
+    certificate_type    = "ManagedCertificate"
+    minimum_tls_version = "TLS12"
+  }
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain_association" "assets" {
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.assets.id
+  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.assets.id]
+}
+
+resource "azurerm_dns_txt_record" "assets" {
+  name                = "_dnsauth.newdatas1"
+  zone_name           = azurerm_dns_zone.assets.name
+  resource_group_name = azurerm_dns_zone.assets.resource_group_name
+  ttl                 = 3600
+
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.assets.validation_token
+  }
+}
+
+resource "azurerm_dns_cname_record" "assets" {
+  depends_on = [azurerm_cdn_frontdoor_route.assets]
+
+  name                = "newdatas1"
+  zone_name           = azurerm_dns_zone.assets.name
+  resource_group_name = azurerm_dns_zone.assets.resource_group_name
+  ttl                 = 3600
+  record              = azurerm_cdn_frontdoor_endpoint.assets.host_name
 }
