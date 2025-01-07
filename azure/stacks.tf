@@ -7,22 +7,6 @@ locals {
   stacksSubdomain = "stacks"
 }
 
-# OLD CDN -- to be deleted
-resource "azurerm_cdn_endpoint" "stacks" {
-  name                = "${var.env}-stacks"
-  profile_name        = azurerm_cdn_profile.assets.name
-  location            = azurerm_resource_group.assets_base.location
-  resource_group_name = azurerm_resource_group.assets_base.name
-
-  origin {
-    name      = "pdata"
-    host_name = azurerm_storage_account.permanent_data.primary_web_host
-  }
-
-  origin_host_header = azurerm_storage_account.permanent_data.primary_web_host
-  origin_path        = "/_stacks"
-}
-
 resource "azurerm_cdn_frontdoor_endpoint" "stacks" {
   name                     = "${var.env}-fdstacks"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.assets.id

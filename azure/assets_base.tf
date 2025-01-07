@@ -24,50 +24,11 @@ resource "azurerm_dns_zone" "assets" {
 
 # CDN base
 
-resource "azurerm_cdn_profile" "assets" {
-  name                = "${var.env}-assets"
-  location            = var.location
+resource "azurerm_cdn_frontdoor_profile" "assets" {
+  name                = "${var.env}-fdassets"
   resource_group_name = azurerm_resource_group.assets_base.name
-  sku                 = "Standard_Verizon"
+  sku_name            = "Standard_AzureFrontDoor"
 }
-
-# CDN endpoint to make the permanent-data storage account available under a
-# custom domain
-
-resource "azurerm_cdn_endpoint" "pdata_assets" {
-  name                = "${var.env}-pdata"
-  profile_name        = azurerm_cdn_profile.assets.name
-  location            = azurerm_resource_group.assets_base.location
-  resource_group_name = azurerm_resource_group.assets_base.name
-
-  origin {
-    name      = "pdata1"
-    host_name = azurerm_storage_account.permanent_data.primary_web_host
-  }
-
-  origin_host_header = azurerm_storage_account.permanent_data.primary_web_host
-}
-
-## resource "azurerm_dns_cname_record" "pdata_assets" {
-##   name                = "data1"
-##   zone_name           = azurerm_dns_zone.assets.name
-##   resource_group_name = azurerm_dns_zone.assets.resource_group_name
-##   ttl                 = 180
-##   target_resource_id  = azurerm_cdn_endpoint.pdata_assets.id
-## }
-
-## resource "azurerm_cdn_endpoint_custom_domain" "pdata_assets" {
-##   name            = "pdata"
-##   cdn_endpoint_id = azurerm_cdn_endpoint.pdata_assets.id
-##   host_name       = "${local.pdataSubdomain}.${azurerm_dns_zone.assets.name}"
-##   ##depends_on      = [azurerm_dns_cname_record.pdata_assets]
-##
-##   cdn_managed_https {
-##     certificate_type = "Shared"
-##     protocol_type    = "IPBased"
-##     tls_version      = "None"
-##   }
-## }
 
 # App Service Plan for various ... app services.
 
@@ -79,14 +40,7 @@ resource "azurerm_service_plan" "assets" {
   sku_name            = "B1"
 }
 
-
-# Migration to FrontDoor!
-
-resource "azurerm_cdn_frontdoor_profile" "assets" {
-  name                = "${var.env}-fdassets"
-  resource_group_name = azurerm_resource_group.assets_base.name
-  sku_name            = "Standard_AzureFrontDoor"
-}
+# CDN details for `data1.fullyjustified.net` ("permanent data assets")
 
 resource "azurerm_cdn_frontdoor_endpoint" "assets" {
   name                     = "${var.env}-fdassets"
