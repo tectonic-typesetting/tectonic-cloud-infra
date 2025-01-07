@@ -56,18 +56,18 @@ resource "azurerm_cdn_endpoint" "pdata_assets" {
 ##   target_resource_id  = azurerm_cdn_endpoint.pdata_assets.id
 ## }
 
-resource "azurerm_cdn_endpoint_custom_domain" "pdata_assets" {
-  name            = "pdata"
-  cdn_endpoint_id = azurerm_cdn_endpoint.pdata_assets.id
-  host_name       = "${local.pdataSubdomain}.${azurerm_dns_zone.assets.name}"
-  ##depends_on      = [azurerm_dns_cname_record.pdata_assets]
-
-  cdn_managed_https {
-    certificate_type = "Shared"
-    protocol_type    = "IPBased"
-    tls_version      = "None"
-  }
-}
+## resource "azurerm_cdn_endpoint_custom_domain" "pdata_assets" {
+##   name            = "pdata"
+##   cdn_endpoint_id = azurerm_cdn_endpoint.pdata_assets.id
+##   host_name       = "${local.pdataSubdomain}.${azurerm_dns_zone.assets.name}"
+##   ##depends_on      = [azurerm_dns_cname_record.pdata_assets]
+##
+##   cdn_managed_https {
+##     certificate_type = "Shared"
+##     protocol_type    = "IPBased"
+##     tls_version      = "None"
+##   }
+## }
 
 # App Service Plan for various ... app services.
 
