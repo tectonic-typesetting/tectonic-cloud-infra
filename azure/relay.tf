@@ -34,8 +34,7 @@ resource "azurerm_linux_web_app" "relay" {
     use_32_bit_worker = false
 
     application_stack {
-      docker_image     = "tectonictypesetting/relay-service"
-      docker_image_tag = "latest"
+      docker_image_name = "tectonictypesetting/relay-service:latest"
     }
   }
 }

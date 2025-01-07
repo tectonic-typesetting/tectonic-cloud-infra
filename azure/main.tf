@@ -1,4 +1,4 @@
-# Copyright 2021-2022 the Tectonic Project
+# Copyright the Tectonic Project
 # Licensed under the MIT License
 
 # Tectonic Azure resources. Terraform docs:
@@ -12,7 +12,7 @@
 # - Remove `.terraform.lock.hcl`
 # - Update minimum version here
 # - Run `terraform init`
-# - Run `terraform (plan|apply) -var-file=prod.tfvars -refresh-only`
+# - Run `terraform apply -var-file=prod.tfvars -refresh-only`
 
 provider "azurerm" {
   features {}
@@ -21,7 +21,7 @@ provider "azurerm" {
 terraform {
   required_providers {
     azurerm = {
-      version = ">= 3.24.0"
+      version = "= 3.117.0"
     }
   }
 
