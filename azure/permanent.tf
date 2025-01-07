@@ -20,17 +20,18 @@ resource "azurerm_storage_account" "permanent_data" {
   resource_group_name = azurerm_resource_group.permanent.name
   location            = azurerm_resource_group.permanent.location
 
-  account_tier              = "Standard"
-  account_replication_type  = "RAGRS"
-  enable_https_traffic_only = false
-  min_tls_version           = "TLS1_2"
-
-  static_website {
-    error_404_document = "404.html"
-    index_document     = "index.html"
-  }
+  account_tier               = "Standard"
+  account_replication_type   = "RAGRS"
+  https_traffic_only_enabled = false
+  min_tls_version            = "TLS1_2"
 
   lifecycle {
     prevent_destroy = true
   }
+}
+
+resource "azurerm_storage_account_static_website" "permanent_data" {
+  storage_account_id = azurerm_storage_account.permanent_data.id
+  error_404_document = "404.html"
+  index_document     = "index.html"
 }
