@@ -48,7 +48,7 @@ resource "azurerm_dns_cname_record" "pdata_assets" {
   name                = "data1"
   zone_name           = azurerm_dns_zone.assets.name
   resource_group_name = azurerm_dns_zone.assets.resource_group_name
-  ttl                 = 3600
+  ttl                 = 180
   target_resource_id  = azurerm_cdn_endpoint.pdata_assets.id
 }
 
@@ -170,6 +170,6 @@ resource "azurerm_dns_cname_record" "assets" {
   name                = "newdatas1"
   zone_name           = azurerm_dns_zone.assets.name
   resource_group_name = azurerm_dns_zone.assets.resource_group_name
-  ttl                 = 3600
+  ttl                 = 180
   record              = azurerm_cdn_frontdoor_endpoint.assets.host_name
 }
