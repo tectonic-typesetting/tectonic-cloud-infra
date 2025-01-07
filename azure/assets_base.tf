@@ -129,51 +129,44 @@ resource "azurerm_cdn_frontdoor_route" "assets" {
 
   cache {}
 
-  ##cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.assets.id]
-  link_to_default_domain = true
+  cdn_frontdoor_custom_domain_ids = [azurerm_cdn_frontdoor_custom_domain.assets.id]
+  link_to_default_domain          = true
 }
 
-# moved {
-#   from = azurerm_cdn_frontdoor_route.example
-#   to   = azurerm_cdn_frontdoor_route.assets
-# }
+resource "azurerm_cdn_frontdoor_custom_domain" "assets" {
+  name                     = local.pdataSubdomain
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.assets.id
+  dns_zone_id              = azurerm_dns_zone.assets.id
+  host_name                = "${local.pdataSubdomain}.${azurerm_dns_zone.assets.name}"
 
-## resource "azurerm_cdn_frontdoor_custom_domain" "assets" {
-##   name                     = "assets"
-##   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.assets.id
-##   dns_zone_id              = azurerm_dns_zone.assets.id
-##   host_name                = "newdatas1.${azurerm_dns_zone.assets.name}"
-##   #host_name       = "${azurerm_dns_cname_record.pdata_assets.name}.${azurerm_dns_zone.assets.name}"
-##   #depends_on      = [azurerm_dns_cname_record.pdata_assets]
-## 
-##   tls {
-##     certificate_type    = "ManagedCertificate"
-##     minimum_tls_version = "TLS12"
-##   }
-## }
-## 
-## resource "azurerm_cdn_frontdoor_custom_domain_association" "assets" {
-##   cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.assets.id
-##   cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.assets.id]
-## }
-## 
-## resource "azurerm_dns_txt_record" "assets" {
-##   name                = "_dnsauth.newdatas1"
-##   zone_name           = azurerm_dns_zone.assets.name
-##   resource_group_name = azurerm_dns_zone.assets.resource_group_name
-##   ttl                 = 3600
-## 
-##   record {
-##     value = azurerm_cdn_frontdoor_custom_domain.assets.validation_token
-##   }
-## }
-## 
-## resource "azurerm_dns_cname_record" "assets" {
-##   depends_on = [azurerm_cdn_frontdoor_route.assets]
-## 
-##   name                = "newdatas1"
-##   zone_name           = azurerm_dns_zone.assets.name
-##   resource_group_name = azurerm_dns_zone.assets.resource_group_name
-##   ttl                 = 180
-##   record              = azurerm_cdn_frontdoor_endpoint.assets.host_name
-## }
+  tls {
+    certificate_type    = "ManagedCertificate"
+    minimum_tls_version = "TLS12"
+  }
+}
+
+resource "azurerm_cdn_frontdoor_custom_domain_association" "assets" {
+  cdn_frontdoor_custom_domain_id = azurerm_cdn_frontdoor_custom_domain.assets.id
+  cdn_frontdoor_route_ids        = [azurerm_cdn_frontdoor_route.assets.id]
+}
+
+resource "azurerm_dns_txt_record" "assets" {
+  name                = "_dnsauth.${local.pdataSubdomain}"
+  zone_name           = azurerm_dns_zone.assets.name
+  resource_group_name = azurerm_dns_zone.assets.resource_group_name
+  ttl                 = 3600
+
+  record {
+    value = azurerm_cdn_frontdoor_custom_domain.assets.validation_token
+  }
+}
+
+resource "azurerm_dns_cname_record" "assets" {
+  depends_on = [azurerm_cdn_frontdoor_route.assets]
+
+  name                = local.pdataSubdomain
+  zone_name           = azurerm_dns_zone.assets.name
+  resource_group_name = azurerm_dns_zone.assets.resource_group_name
+  ttl                 = 3600
+  record              = azurerm_cdn_frontdoor_endpoint.assets.host_name
+}
