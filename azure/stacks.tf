@@ -31,21 +31,21 @@ resource "azurerm_cdn_endpoint" "stacks" {
 ## }
 ##
 
-resource "azurerm_cdn_endpoint_custom_domain" "stacks" {
-  name            = local.stacksSubdomain
-  cdn_endpoint_id = azurerm_cdn_endpoint.stacks.id
-  host_name       = "stacks.${azurerm_dns_zone.assets.name}"
-
-  cdn_managed_https {
-    certificate_type = "Shared"
-    protocol_type    = "IPBased"
-    tls_version      = "None"
-  }
-
-  depends_on = [
-    azurerm_cdn_endpoint.stacks
-  ]
-}
+## resource "azurerm_cdn_endpoint_custom_domain" "stacks" {
+##   name            = local.stacksSubdomain
+##   cdn_endpoint_id = azurerm_cdn_endpoint.stacks.id
+##   host_name       = "stacks.${azurerm_dns_zone.assets.name}"
+## 
+##   cdn_managed_https {
+##     certificate_type = "Shared"
+##     protocol_type    = "IPBased"
+##     tls_version      = "None"
+##   }
+## 
+##   depends_on = [
+##     azurerm_cdn_endpoint.stacks
+##   ]
+## }
 
 # Migration to FrontDoor!
 
